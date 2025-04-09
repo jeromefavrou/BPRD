@@ -135,7 +135,7 @@ public class Interpolate
                 dx = p.vect.x - _point.x;
                 dy = p.vect.y - _point.y;
 
-                dist = Mathd.Sqrt(dx * dx + dy * dy);
+                dist =dx * dx + dy * dy;
 
                 if (dist > dmax)
                 {
@@ -146,6 +146,8 @@ public class Interpolate
                 {
                     return p.vect.z;
                 }
+
+                dist =  Mathd.Sqrt(dist);
 
                 weight = 1.0f / Mathd.Pow(dist , pow);
                 sum1 += weight * p.vect.z;
@@ -221,7 +223,7 @@ public class Interpolate
 
         BathyGraphie2D.fillTexture(ref gen_data.workingTexture, fillCol);
 
-        gen_data.limite.setReso((uint)gen_data.it_data.reso);
+        gen_data.limite.setReso(gen_data.it_data.reso);
 
         List<BathyPoint> tmpData = new List<BathyPoint>( data);
 

@@ -98,7 +98,7 @@ public class GeneralStatUtils : MonoBehaviour
     {
         public Vector2Int size;
         public double[,] data;
-        public int reso;
+        public float reso;
 
         public float dMax ;
         public int interpolationType ;

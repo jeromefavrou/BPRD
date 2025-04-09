@@ -425,16 +425,20 @@ public class Graph : MonoBehaviour
     public void autoScale()
     {
         screenRatio = (float) graphImage.rectTransform.rect.width / (float) graphImage.rectTransform.rect.height;
-        //determine le ratio optimal pour ettendre sur tout le graph les points
-        Vector2d min= _points.minBound();
-        Vector2d max = _points.maxBound();
 
-
-        ratio.x = (1.1f*(float)(max.x ) / tex.width );
-        ratio.y = (1.1f*(float)(max.y  ) / tex.height) * screenRatio;
+        calculateRatio();
 
         //_barycentre = new Vector2((float)(-min.x)/ratio.x , (float)(-min.y)/ratio.y );
         _barycentre = new Vector2(0, 0);
+    }
+
+    public void calculateRatio()
+    {
+        Vector2d min= _points.minBound();
+        Vector2d max = _points.maxBound();
+
+        ratio.x = (1.1f*(float)(max.x ) / tex.width );
+        ratio.y = (1.1f*(float)(max.y  ) / tex.height) * screenRatio;
     }
 
 

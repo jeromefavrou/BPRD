@@ -51,9 +51,21 @@ namespace UnityEngine {
             }
         }
 
+        public double magnitude2D {
+            get {
+                return Math.Sqrt(this.x * this.x + this.y * this.y );
+            }
+        }
+
         public double sqrMagnitude {
             get {
                 return this.x * this.x + this.y * this.y + this.z * this.z;
+            }
+        }
+
+        public double sqrMagnitude2D {
+            get {
+                return this.x * this.x + this.y * this.y ;
             }
         }
 
@@ -353,6 +365,10 @@ namespace UnityEngine {
 
         public static Vector3d Max(Vector3d lhs, Vector3d rhs) {
             return new Vector3d(Mathd.Max(lhs.x, rhs.x), Mathd.Max(lhs.y, rhs.y), Mathd.Max(lhs.z, rhs.z));
+        }
+
+        public static Vector2d ToVector2d(Vector3d vector3d) {
+            return new Vector2d(vector3d.x, vector3d.y);
         }
 
     }

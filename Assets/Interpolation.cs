@@ -77,7 +77,7 @@ protected override IEnumerator action()
     float dmax = 0;
     try
     {
-        gen_data.it_data.reso = int.Parse(resolution.text);
+        gen_data.it_data.reso = float.Parse(resolution.text);
         dmax = float.Parse(Dmax.text);
     }
     catch

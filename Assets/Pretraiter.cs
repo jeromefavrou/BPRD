@@ -316,8 +316,6 @@ public class Pretraiter : BPAction
 
 
         double dist2;
-        double dx;
-        double dy;
         double result = double.MaxValue;
         double distanceSave = float.MaxValue;
 
@@ -370,9 +368,10 @@ public class Pretraiter : BPAction
                                     {
                                         continue;
                                     }
-                                    dx = preTraitData[i].vect.x - preTraitData[h].vect.x;
-                                    dy = preTraitData[i].vect.y - preTraitData[h].vect.y;
-                                    dist2 = dx * dx + dy * dy;
+
+                                    //distance au carré
+                                    dist2 = Vector3d.ToVector2d(preTraitData[i].vect - preTraitData[h].vect).SqrMagnitude();
+                                    
                                     if (dist2 < distanceSave)
                                     {
                                         distanceSave = dist2;
@@ -387,7 +386,7 @@ public class Pretraiter : BPAction
 
                                 if( sigma2 != 0 && distanceSave != 0)
                                 {
-                                    sigma_ponderation = sigma2 / Mathd.Sqrt(distanceSave);
+                                    sigma_ponderation = sigma2;
                                 }
 
                                 if( sigma_ponderation < Vector3d.kEpsilon)
@@ -660,7 +659,7 @@ public class Pretraiter : BPAction
         gen_data.pp_data.nemo_distance = 0.0f; //!valeur temporaire en attendant a vrai valeur
         //arrondire au superieur
         gen_data.it_data.reso =  1 ;
-        gen_data.it_data.size = new Vector2Int((int)gen_data.pp_data.size.x *gen_data.it_data.reso, (int)gen_data.pp_data.size.y*gen_data.it_data.reso); 
+        gen_data.it_data.size = new Vector2Int((int)(gen_data.pp_data.size.x *gen_data.it_data.reso), (int)(gen_data.pp_data.size.y*gen_data.it_data.reso)); 
 
         gen_data.limite = new NPLimite();
         gen_data.limite._pbarre = progressBarre;
@@ -722,7 +721,7 @@ public class Pretraiter : BPAction
             //commence par genere le x
             double x = Random.Range(0.0f, (float) gen_data.pp_data.size.x);
             //arrondire a l'inferieur 
-            uint xroud = (uint)x * (uint)gen_data.it_data.reso;
+            uint xroud = (uint)(x * gen_data.it_data.reso);
 
             //genere le y
             double y =  Random.Range( gen_data.limite.getLimiteYMin( xroud ), gen_data.limite.getLimiteYMax( xroud ))/gen_data.it_data.reso;

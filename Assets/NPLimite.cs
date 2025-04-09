@@ -24,7 +24,7 @@ public class NPLimite
     uint minSetCount = 0;
     uint maxSetCount = 0;
 
-    private uint last_resolution =1;
+    private float last_resolution =1;
 
     private bool inError = false;
 
@@ -38,7 +38,7 @@ public class NPLimite
         inError = false;
     }
 
-    public void setReso( uint _res)
+    public void setReso( float _res)
     {
         last_resolution = _res;
     }
@@ -254,7 +254,7 @@ public IEnumerator setLimite( GeneralStatUtils _gen )
  
 
     xSize = (uint)_gen.it_data.size.x+1; 
-    last_resolution = (uint)_gen.it_data.reso;
+    last_resolution = _gen.it_data.reso;
     
     _pbarre.start((uint)_gen.it_data.size.y,0.01f);
 
@@ -363,7 +363,7 @@ private void yMinPass( uint y , GeneralStatUtils _gen )
 
         foreach( Vector2d p in convexHull)
         {
-            if( rayCastCell( x / last_resolution , y / last_resolution , p) )
+            if( rayCastCell((uint)(x / last_resolution) , (uint)(y / last_resolution) , p) )
             {
                 limiteData[x].ymin = y;
                 limiteData[x].minSet = true;
@@ -391,7 +391,7 @@ private void yMaxPass( uint y , GeneralStatUtils _gen )
 
         foreach( Vector2d p in convexHull)
         {
-            if( rayCastCell( x / last_resolution , y / last_resolution , p) )
+            if( rayCastCell( (uint)(x / last_resolution) , (uint)(y / last_resolution) , p) )
             {
                 limiteData[x].ymax = y;
                 limiteData[x].maxSet = true;
@@ -542,12 +542,19 @@ private void interpolateLimiteMin(uint x)
 
     public uint getLimiteYMin( uint x)
     {
-        return limiteData[x/last_resolution].ymin*last_resolution;
+        //indexe x en fonction de la resolution arrondire tjr  a l'inferieur
+        uint xIndex = (uint)(x / last_resolution);
+
+        return (uint)(limiteData[ xIndex ].ymin*last_resolution);
     }
 
     public uint getLimiteYMax( uint x)
     {
-        return limiteData[x/last_resolution].ymax*last_resolution;
+        //indexe x en fonction de la resolution arrondire tjr  a l'inferieur
+        uint xIndex = (uint)(x / last_resolution);
+
+
+        return (uint)(limiteData[ xIndex ].ymax*last_resolution);
     }
 
     public float getSurface()

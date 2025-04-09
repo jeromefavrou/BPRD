@@ -59,6 +59,9 @@ public class TooltipOnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             // Obtenir la position de la souris
             Vector2 mousePosition = Event.current.mousePosition;
 
+            //screen size
+            Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+
             // Créer un style de boîte pour le tooltip
             GUIStyle tooltipStyle = new GUIStyle(GUI.skin.box);
             tooltipStyle.wordWrap = true;  // Permet de découper le texte en plusieurs lignes si nécessaire
@@ -78,8 +81,21 @@ public class TooltipOnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                 }
             }
 
+            Vector2 offsetBord = new Vector2(0, 0); // Décalage par rapport au bord de l'écran
+
+            // Vérifier si le tooltip dépasse les bords de l'écran
+            if( mousePosition.x + maxWidth/2 > screenSize.x -10 )
+            {
+                offsetBord.x = mousePosition.x + maxWidth/2 - (screenSize.x-10) ;
+            }
+            else if( mousePosition.x - maxWidth/2 < 0)
+            {
+                offsetBord.x = mousePosition.x - maxWidth/2 ;
+            }
+
+        
             //ajuste la taille de la boite en fonction de la taille du texte
-            GUI.Box(new Rect(mousePosition.x + 10, mousePosition.y + 10, maxWidth + 20, lines.Length * 20 + 10), tooltipText, tooltipStyle);
+            GUI.Box(new Rect(mousePosition.x - maxWidth/2 - offsetBord.x, mousePosition.y + 30, maxWidth + 20, lines.Length * 20 + 10), tooltipText, tooltipStyle);
 
         }
     }

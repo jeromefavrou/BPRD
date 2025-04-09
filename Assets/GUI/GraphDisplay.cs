@@ -63,6 +63,7 @@ public class GraphDisplay : MonoBehaviour
         _graph.clear();
         _graph.setLPoints(saveGraph[courbeType.value].points);
         _graph.setRawImage(saveGraph[courbeType.value].rawImage);
+        _graph.calculateRatio();
         _graph.drawAxesValue();
 
         npoint.text = saveGraph[courbeType.value].points.getListPoint().Count.ToString();

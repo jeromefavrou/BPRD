@@ -1,0 +1,61 @@
+Version : v0.4.0-alpha
+date : 19/04/2025
+Author : Jérôme Favrou
+Git Source : https://github.com/jeromefavrou/BPRD
+
+    <<<<< Résolut >>>>>
+    
+    Bug des valeurs d'axes de graphe qui ne suivait que le dernier graph généré
+    <critique> Mauvaise gestion de la mémoire Ram lors d'un changement de type de graph
+    Collage sur un bord des toolTip pour evité un débordement de fenetre
+    Dessin de courbe plus precis lors de forte pentes
+
+    <<<<< Ajout  >>>>>
+
+    Ajout d"un bouton de change log
+    Ajout de 'interpolation par krigage ordinaire 2
+    Ajout d'une mecanique de multi-threading
+    Ajout d'un champs de renseignement de thread utilisé par l'application
+    Ajout d'une mecanique de fonction d'estimation
+    ajout d'un graph de densité de mesure ajusté par la fonction d'estimation des noyaux gaussien
+    ajout d'un ajustement sur model lineaire sur semi-vario
+    ajout d'un ajustement sur model exponentiel sur semi-vario
+    ajout d'un ajustement sur model gaussien sur semi-vario
+    ajout d'un ajustement sur model spherique sur semi-vario
+    ajout d'un ajustement par noyaux gaussien sur semi-vario
+    ajout d'un estimateur de la distance max utile du semi-variograme
+    ajout de la position pointé souris sur le graph
+
+    <<<<< Modification >>>>>
+
+    Reduction du temps de calcule du point némo par modification de l'algoritme
+    Reduction du temps de caclule du point némo par multi-threading
+    Retrait du facteur Aleatoire du calcule du point némo
+    Stabilisation de la precision du calcule du point némo a 1/100 eme
+
+    Reduction du temps de calcule du semi-variograme 1er partie par optimisation de l'algoritme
+    Reduction du temps de caclule du semi-variograme 1er partie par multi-threading
+
+    Reduction du temps de caclule du semi-variograme 2eme partie par multi-threading
+
+    ajustement automatique du barycentre en y des graphs
+
+    Auto set de la valeur de resoltution d'interpolation modifier a un facteur de la resolution min et de la densité de point 
+    Input de Resolution d'interpolation desormait floatant et possible < 1 
+    reduction de la taille des parametre du semi-variogramme
+
+    ajustement des posion des dialogue sur les bord
+
+    <<<<< Non Critique non résolut >>>>>
+
+    Bug des des valeurs d'axes qui ne suivent pas un changement de resolution de fenetre 
+    Bug du retrait de trace
+    Possible forte impréssision du calcule point némo en echentillonage trop loin du metrique ( non adaptatif )
+    RMSEXY a 0 au lieu de N/A
+    O de graph en Y s'affiche meme si hors viewport quand barycentre de graph non null
+
+    <<<<< Critique non résolut >>>>>
+
+    pas de manuel possible sur les ajustement de semi vario
+
+

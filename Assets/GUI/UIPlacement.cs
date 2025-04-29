@@ -13,6 +13,9 @@ public class UIPlacement : MonoBehaviour
     public GameObject freeMem;
 
     public GameObject reductFull;
+    public GameObject changeLog;
+
+    public GameObject nThread;
 
     public GameObject graph;
 
@@ -69,10 +72,22 @@ rt = cameraType.GetComponent<RectTransform>();
         rt.anchorMax = new Vector2(1, 1); // Ancrage en haut droite
         rt.pivot = new Vector2(0.5f, 1);  // Le haut du GameObject est l'ancre
 
+    rt = changeLog.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1); // Ancrage en haut droite
+        rt.anchorMax = new Vector2(1, 1); // Ancrage en haut droite
+        rt.pivot = new Vector2(0.5f, 1);  // Le haut du GameObject est l'ancre
+
     rt = graph.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0, 1); 
         rt.anchorMax = new Vector2(0, 1); 
         rt.pivot = new Vector2(0.5f, 1);  
+
+
+        rt = nThread.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1); // Ancrage en haut droite
+        rt.anchorMax = new Vector2(1, 1); // Ancrage en haut droite
+        rt.pivot = new Vector2(0.5f, 1);  // Le haut du GameObject est l'ancre
+
     
 }
 
@@ -123,8 +138,21 @@ rt = cameraType.GetComponent<RectTransform>();
         rt.anchoredPosition = new Vector2(index, -offset.y);
         
 
+
+        index = 0;
+
+
         rt = reductFull.GetComponent<RectTransform>();
-        rt.anchoredPosition = new Vector2(-(int)rt.sizeDelta.x, 0);
+        index += (int)rt.sizeDelta.x + offset.x;
+        rt.anchoredPosition = new Vector2(-index, -offset.y);
+
+        rt = changeLog.GetComponent<RectTransform>();
+        index += (int)rt.sizeDelta.x + offset.x;
+        rt.anchoredPosition = new Vector2(-index, -offset.y);
+
+        rt = nThread.GetComponent<RectTransform>();
+        index += (int)rt.sizeDelta.x + offset.x;
+        rt.anchoredPosition = new Vector2(-index, -offset.y);
 
     }
 }

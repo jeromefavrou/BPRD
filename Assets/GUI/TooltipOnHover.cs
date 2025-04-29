@@ -55,48 +55,43 @@ public class TooltipOnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     void OnGUI()
     {
         if (showTooltip)
-        {
-            // Obtenir la position de la souris
-            Vector2 mousePosition = Event.current.mousePosition;
+{
+    Vector2 mousePosition = Event.current.mousePosition;
+    Vector2 screenSize = new Vector2(Screen.width, Screen.height);
 
-            //screen size
-            Vector2 screenSize = new Vector2(Screen.width, Screen.height);
+    GUIStyle tooltipStyle = new GUIStyle(GUI.skin.box);
+    tooltipStyle.wordWrap = true;
 
-            // Créer un style de boîte pour le tooltip
-            GUIStyle tooltipStyle = new GUIStyle(GUI.skin.box);
-            tooltipStyle.wordWrap = true;  // Permet de découper le texte en plusieurs lignes si nécessaire
+    string[] lines = tooltipText.Split('\n');
 
-            //x automatique en fonction de la taille du texte
-            //commance par séparé le texte en ligne
-            string[] lines = tooltipText.Split('\n');
+    float maxWidth = 0;
+    foreach (string line in lines)
+    {
+        float width = tooltipStyle.CalcSize(new GUIContent(line)).x;
+        if (width > maxWidth)
+            maxWidth = width;
+    }
 
-            //regarde la taille de la plus grande ligne
-            float maxWidth = 0;
-            foreach (string line in lines)
-            {
-                float width = tooltipStyle.CalcSize(new GUIContent(line)).x;
-                if (width > maxWidth)
-                {
-                    maxWidth = width;
-                }
-            }
+    // Définir les dimensions de la boîte
+    float boxWidth = maxWidth + 20;
+    float boxHeight = lines.Length * 20 + 10;
 
-            Vector2 offsetBord = new Vector2(0, 0); // Décalage par rapport au bord de l'écran
+    // Position initiale de la boîte
+    float posX = mousePosition.x - boxWidth / 2;
+    float posY = mousePosition.y + 30;
 
-            // Vérifier si le tooltip dépasse les bords de l'écran
-            if( mousePosition.x + maxWidth/2 > screenSize.x -10 )
-            {
-                offsetBord.x = mousePosition.x + maxWidth/2 - (screenSize.x-10) ;
-            }
-            else if( mousePosition.x - maxWidth/2 < 0)
-            {
-                offsetBord.x = mousePosition.x - maxWidth/2 ;
-            }
+    // Ajustement pour ne pas dépasser l'écran en X
+    if (posX < 10) posX = 10;
+    if (posX + boxWidth > screenSize.x - 10) posX = screenSize.x - boxWidth - 10;
 
-        
-            //ajuste la taille de la boite en fonction de la taille du texte
-            GUI.Box(new Rect(mousePosition.x - maxWidth/2 - offsetBord.x, mousePosition.y + 30, maxWidth + 20, lines.Length * 20 + 10), tooltipText, tooltipStyle);
+    // Ajustement pour ne pas dépasser l'écran en Y
+    if (posY + boxHeight > screenSize.y - 10)
+        posY = mousePosition.y - boxHeight - 10; // Au-dessus de la souris si dépasse
 
-        }
+    if (posY < 10)
+        posY = 10;
+
+    GUI.Box(new Rect(posX, posY, boxWidth, boxHeight), tooltipText, tooltipStyle);
+}
     }
 }

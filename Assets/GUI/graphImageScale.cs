@@ -44,7 +44,7 @@ public class graphImageScale : MonoBehaviour
         //place le bp export en bas a droit de l'image
         Vector2 size = exportbp.GetComponent<RectTransform>().sizeDelta;
 
-        exportbp.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -screenHeight/2 + 50);
+        exportbp.GetComponent<RectTransform>().anchoredPosition = new Vector2(screenWidth/2 -size.x/2 -10, -screenHeight/2 + 50);
 
         //place le select curve en bas a gauche de l'image
         size = selectCurve.GetComponent<RectTransform>().sizeDelta;

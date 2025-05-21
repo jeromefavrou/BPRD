@@ -274,7 +274,7 @@ public IEnumerator setLimite( GeneralStatUtils _gen )
         limiteData[x].maxSet = false;
     }
 
-yield return new WaitForSeconds(0.01f);
+    yield return new WaitForSeconds(0.01f);
     //pour tout Y montant
     //calcule des limite inferieur
     for(uint y = 0 ; y < _gen.it_data.size.y-1 ; y++)
@@ -343,8 +343,6 @@ yield return new WaitForSeconds(0.01f);
             }
         }
     }
-
-
 
     _pbarre.stop();
      _pbarre.setAction("Calcul des limites terminé");
@@ -556,6 +554,7 @@ private void interpolateLimiteMin(uint x)
 
         return (uint)(limiteData[ xIndex ].ymax*last_resolution);
     }
+
 
     public float getSurface()
     {

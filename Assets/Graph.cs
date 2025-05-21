@@ -6,6 +6,7 @@ using TMPro;
 public class Graph : MonoBehaviour
 {
     public RawImage graphImage;
+    public TMP_Text posText;
     private ListPoint _points = new ListPoint();
 
     private Texture2D tex ;
@@ -58,7 +59,13 @@ public class Graph : MonoBehaviour
     {
         _points.clear();
         _points = new ListPoint();
+
+
         tex = new Texture2D(sizeX, sizeY);
+        tex.filterMode = FilterMode.Point;
+        tex.wrapMode = TextureWrapMode.Clamp;
+         tex.Apply();
+        graphImage.texture = tex;
 
 
         foreach (GameObject go in xValues)
@@ -79,9 +86,11 @@ public class Graph : MonoBehaviour
         return graphImage.texture as Texture2D;
     }
 
-    public void setRawImage(Texture2D img)
-    {
-        graphImage.texture = img;
+    public void setRawImage( Texture2D img)
+    { 
+        tex = img;
+        tex.Apply();
+        graphImage.texture = tex;
     }
 
     void FillTextureWithWhite(Texture2D tex)
@@ -128,6 +137,7 @@ public class Graph : MonoBehaviour
 
         foreach (Vector2d point in _points.getListPoint())
         {
+            //debug
             drawDot(point, dot , dotSize);
 
             i++;
@@ -171,6 +181,9 @@ public class Graph : MonoBehaviour
 
         pos.y *= screenRatio;
 
+        pos.y = (float)(pos.y + _barycentre.y) ;
+
+
         int dot2x = dotSize.x/2;
         int dot2y = (int)(float)(dotSize.y)/2;
 
@@ -180,12 +193,27 @@ public class Graph : MonoBehaviour
             return;
         }
 
-        tex.SetPixels((int)pos.x - dot2x, (int)pos.y - dot2y, dotSize.x, dotSize.y, dot);
+        try
+        {
+            //draw le point
+            tex.SetPixels((int)pos.x - dot2x, (int)pos.y - dot2y, dotSize.x, dotSize.y, dot);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error drawing dot: " + e.Message);
+            Debug.LogError("Position: " + pos.x + ", " + pos.y);
+            Debug.LogError("Dot size: " + dotSize.x + ", " + dotSize.y);
+            return;
+        }
     }
 
 
     void addXvalue(float xValue)
     {
+        if(_points.getListPoint().Count == 0)
+        {
+            return;
+        }
         xValues.Add( new GameObject(xValue.ToString()));
         var tmptxt  = xValues[xValues.Count - 1].AddComponent<TextMeshProUGUI>();
         xValues[xValues.Count - 1].transform.SetParent(graphImage.transform);
@@ -209,6 +237,11 @@ public class Graph : MonoBehaviour
 
     void addYvalue(float yValue)
     {
+        if(_points.getListPoint().Count == 0)
+        {
+            return;
+        }
+
         yValues.Add( new GameObject(yValue.ToString()));
         var tmptxt  = yValues[yValues.Count - 1].AddComponent<TextMeshProUGUI>();
         yValues[yValues.Count - 1].transform.SetParent(graphImage.transform);
@@ -224,10 +257,10 @@ public class Graph : MonoBehaviour
 
         Vector2 refPos = new Vector2(posImage.x - taille.x , posImage.y - taille.y)   ;
 
-        double yonGui = (yValue-_barycentre.y) / ratio.y;
+        double yonGui = (yValue) / ratio.y;
         yonGui *= screenRatio;
         yonGui *= (graphImage.rectTransform.rect.height )/sizeY;
-
+        yonGui += (_barycentre.y)*(graphImage.rectTransform.rect.height )/sizeY ;
 
 
         yValues[yValues.Count - 1].transform.position = new Vector3(refPos.x - 15, refPos.y + (float)yonGui, 0);
@@ -427,9 +460,10 @@ public class Graph : MonoBehaviour
         screenRatio = (float) graphImage.rectTransform.rect.width / (float) graphImage.rectTransform.rect.height;
 
         calculateRatio();
-
-        //_barycentre = new Vector2((float)(-min.x)/ratio.x , (float)(-min.y)/ratio.y );
-        _barycentre = new Vector2(0, 0);
+        Vector2d min= _points.minBound();
+        
+        //_barycentre = new Vector2(0, (float)(-min.y)/ratio.y*screenRatio );
+        _barycentre = new Vector2(0, 0 );
     }
 
     public void calculateRatio()
@@ -447,29 +481,29 @@ public class Graph : MonoBehaviour
         return _points.calcBarycentre();;
     }
 
-    public void drawLinearCurve()
+    public void drawEstimateCurve()
     {
-        ListPoint.RegressParametres param = _points.regressData.regressParametres;
-
-        if( param == null)
+        if( _points.regressData.estimateur == null)
         {
-            param = _points.linearRegression();
+            errManager.addError("Pas d'estimateur de regression linéaire");
+            return;
         }
+
+        
         var dotSize = scaleSize(2);
         Color[] dot = generateTemplateSquare(dotSize, Color.blue);
 
-        for (int i = -tex.width; i < tex.width; i++)
+        for (double i = -tex.width; i < tex.width; i+=0.1)
         {
             double x = i * ratio.x;
-            double y = param.a * x + param.b;
+            double y = _points.regressData.estimateur(x);
+            //debug
             drawDot(new Vector2d(x ,y), dot , dotSize);
         }
 
         tex.Apply();
         graphImage.texture = tex;
     }
-
-
 
 
 
@@ -485,6 +519,43 @@ public class Graph : MonoBehaviour
         {
             lastRatio = ratio;
         }
+
+        Vector2 localMousePos;
+        RectTransform rectTransform = graphImage.rectTransform;
+
+        // Convertir la position de la souris en position locale dans le rectTransform
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rectTransform,
+            Input.mousePosition,
+            null, // caméra null si screen space overlay
+            out localMousePos))
+        {
+            // Convertir en coordonnées de texture (origine en bas à gauche)
+            float width = rectTransform.rect.width;
+            float height = rectTransform.rect.height;
+
+            float x = localMousePos.x + width / 2;
+            float y = localMousePos.y + height / 2;
+
+            if (x >= 0 && x <= width && y >= 0 && y <= height)
+            {
+                x *= ratio.x * sizeX / width;
+                y *= ratio.y * sizeY / height;
+                y /= screenRatio;
+
+                
+        /*pos.y /= ratio.y;
+
+        pos.y *= screenRatio;
+
+        pos.y = (float)(pos.y + _barycentre.y) ;*/
+                posText.text = "x: " + x.ToString("F2") + " ; y: " + y.ToString("F2");
+
+            }
+
+        }
+
     }
+    
     
 }

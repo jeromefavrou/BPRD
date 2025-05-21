@@ -101,6 +101,7 @@ public class GeneralStatUtils : MonoBehaviour
         public float reso;
 
         public float dMax ;
+        public int nNeighbors ;
         public int interpolationType ;
 
         public IT_data()
@@ -214,6 +215,28 @@ public class GeneralStatUtils : MonoBehaviour
     public Vector2d abs_vect2(Vector2d vect)
     {
         return new Vector2d(abs_x(vect.x), abs_y(vect.y));
+    }
+
+    public List<BathyPoint> subConfirmData( List<BathyPoint> data)
+    {
+        List<BathyPoint> tmpData = new List<BathyPoint>( data);
+
+        //si donné de test de confirmation present
+        if( this.pp_data.confirmDataSegment.set )
+        {
+            //retire les données de confirmation
+
+            for( int i = 0 ; i < tmpData.Count ; i++)
+            {
+                if( this.pp_data.confirmDataSegment.isInside((uint)tmpData[i].idx))
+                {
+                    tmpData.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
+
+        return tmpData;
     }
 
 

@@ -8,21 +8,29 @@ public class TitleAuto : MonoBehaviour
     private TMP_Text Tmp_title;
 
     void Start()
-    {
+    {        //cherhcer un prefab par son nom
+        titlePrefab = Resources.Load<GameObject>("TextPrefab");
 
-
-        //cherhcer un prefab par son nom
-        titlePrefab = Resources.Load<GameObject>("TextPrefab"); 
-        
-         if (titlePrefab == null)
+        if (titlePrefab == null)
         {
             Debug.LogError("Prefab Title non assigné !");
             return;
         }
-
         // Instancier le prefab au-dessus de l'objet actuel
         titleInstance = Instantiate(titlePrefab, transform);
+        titleInstance.name = "Title";
+        
+        UpdateTitle();
 
+    }
+    
+    public void UpdateTitle()
+    {
+        if(titleInstance == null)
+        {
+            Debug.LogError("L'instance du prefab Title n'est pas assignée !");
+            return;
+        }
         //taille de l'objet en y
         float sizeY = GetComponent<RectTransform>().sizeDelta.y;
 
@@ -40,7 +48,6 @@ public class TitleAuto : MonoBehaviour
 
         // Mettre à jour le texte avec le nom de l'objet parent
         Tmp_title.text = gameObject.name;
-        titleInstance.name = "Title";
         
     }
 }

@@ -12,6 +12,7 @@ public class Pretraiter : BPAction
     public Button exportBp;
     public Button variogrameBp;
     public TMP_InputField offset;
+    
     public TMP_Dropdown limiteType;
     public TMP_Dropdown confirmType;
     public TMP_InputField startConvexIdx= null;
@@ -820,7 +821,12 @@ gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
         gen_data.updateStat();
 
 
-
+        StartCoroutine(generateRepartition());
+        while( progressBarre.ProcessingCheck())
+        {
+            yield return new WaitForSeconds(0.01f);
+        }
+        
 
         StartCoroutine(generateDensity());
         while( progressBarre.ProcessingCheck())
@@ -964,42 +970,58 @@ gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
         //fenetre de  cumul des mesure h
          
 
-         double minZ = Mathd.Abs(gen_data.pp_data.max.z);
-         double maxZ = Mathd.Abs(gen_data.pp_data.min.z) ;
-        double h = 200* (maxZ-minZ) / (double)preTraitData.Count;
-        
-        //parcour toute les fenetre
-        for(double i = minZ+h; i < maxZ; i+= h)
+         double minZ = Mathd.Abs(gen_data.pp_data.max.z) * 0.9;
+    double maxZ = Mathd.Abs(gen_data.pp_data.min.z) * 1.1;
+    double h = 200 * (maxZ - minZ) / (double)preTraitData.Count;
+
+    //debug 
+    Debug.Log("h : " + h);
+    Debug.Log("minZ : " + minZ);
+    Debug.Log("maxZ : " + maxZ);
+
+    // Parcourt toutes les fenêtres
+    for (double i = minZ + h; i < maxZ; i += h)
+    {
+        int n = 0;
+
+        // Compte les mesures dans le bin [i-h, i+h)
+        for (int j = 0; j < preTraitData.Count; j++)
         {
-            int n = 0;
-
-            //parcour toute les mesure
-            for(int j = 0; j < preTraitData.Count; j++)
+            double z = Mathd.Abs(preTraitData[j].vect.z);
+            if (z >= i - h && z < i + h)
             {
-                double z = Mathd.Abs(preTraitData[j].vect.z);
-
-                if( z >= i-h && z < i + h)
-                {
-                    n++;
-                }
+                n++;
             }
-
-            //ajout de la liste de point a la liste de resultat
-            listPointRes.addPoint(new Vector2d(i, (double)n ));
         }
 
+        // Densité : fréquence normalisée par la largeur du bin
+        double density = (double)n / (preTraitData.Count * h);
+        listPointRes.addPoint(new Vector2d(i, density));
+    }
 
-        
 
         _graph.clear();
 
         listPointRes.regressData = new ListPoint.RegressData();
         listPointRes.regressData.regressParametres = new ListPoint.RegressParametres();
         
-        listPointRes.regressData.regressParametres.h = h/2;
+        listPointRes.regressData.regressParametres.h = h/1.5;
         listPointRes.regressKernelGaussien();
 
-        
+        double intergrate = listPointRes.IntegrateEstimateur(0 , maxZ * 2 , 0.001);
+
+        ListPoint listPointRes2 = new ListPoint();
+        foreach(Vector2d v in listPointRes.getListPoint())
+        {
+            listPointRes2.addPoint(new Vector2d(v.x, v.y / intergrate));
+        }
+        //parcour la liste de point et divise tout les y par k
+        listPointRes.clearPoints();
+        foreach(Vector2d v in listPointRes2.getListPoint())
+        {
+            listPointRes.addPoint(new Vector2d(v.x, v.y));
+        }
+        //listPointRes.regressData.regressParametres.k = 1;
         
         _graph.setLPoints(listPointRes);
         _graph.getLPoints().getRSquare();
@@ -1015,10 +1037,59 @@ gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
 
         _graph.drawEstimateCurve();
 
-        graphDisplay.saveCurrent( 0 );
-        graphDisplay.courbeType.value = 0;
+        graphDisplay.saveCurrent( GraphDisplay.IndexCurve.funcDensity );
 
-        graphDisplay.selectChange();
+
+    }
+
+    private IEnumerator generateRepartition()
+    {
+        //liste de point resusltat
+        ListPoint listPointRes = new ListPoint();
+
+        //somme de tout les z 
+        
+
+        var dataCpy = new List<BathyPoint>(preTraitData);
+
+        double sum = 0;
+        foreach(BathyPoint v in dataCpy)
+        {
+            sum += v.vect.z;
+        }
+
+        sum = Mathd.Abs(sum);
+
+        
+        //trie par ordre croissant
+        dataCpy.Sort((a, b) => a.vect.z.CompareTo(b.vect.z));
+        dataCpy.Reverse();
+        double cum = 0;
+        
+        for(int i = 0; i < dataCpy.Count; i++)
+        {
+            cum +=  Mathd.Abs(dataCpy[i].vect.z);
+            double y = (double)i / (double)dataCpy.Count;
+
+            listPointRes.addPoint(new Vector2d( (cum / sum) * Mathd.Abs(gen_data.pp_data.min.z) , y));
+        }
+
+        _graph.clear();
+        _graph.setLPoints(listPointRes);
+        //_graph.getLPoints().getRSquare();
+        _graph.autoScale();
+        _graph._barycentre = new Vector2(0, 0);
+
+        StartCoroutine( _graph.drawGraph()) ;
+
+        while( progressBarre.ProcessingCheck() )
+        {
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        //_graph.drawEstimateCurve();
+
+        graphDisplay.saveCurrent( GraphDisplay.IndexCurve.funcRepartition );
     }
 
    

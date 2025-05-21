@@ -20,6 +20,7 @@ public class nThreadManage : MonoBehaviour
         }
 
         int max = Environment.ProcessorCount - 1;
+        ThreadSegment.limiteThreads = (uint)max; // on ne peut pas avoir plus de threads que le nombre de coeurs - 1
         //set la valeur
         input.text = max.ToString();
         
@@ -49,6 +50,8 @@ public class nThreadManage : MonoBehaviour
                     {
                         input.text = "1";
                     }
+
+                    ThreadSegment.limiteThreads = (uint)value;
                 }
                 catch (FormatException)
                 {
@@ -59,8 +62,8 @@ public class nThreadManage : MonoBehaviour
             }  
         }
 
-        
-        
     }
+
+
     
 }

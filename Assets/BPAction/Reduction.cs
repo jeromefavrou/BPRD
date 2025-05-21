@@ -177,8 +177,8 @@ public class Reduction : BPAction
             }
             _graph.drawEstimateCurve();
 
-            graphDisplay.saveCurrent( 3 );
-            graphDisplay.courbeType.value = 3;
+            graphDisplay.saveCurrent( GraphDisplay.IndexCurve.crossValidReduct );
+
         }
         else
         {

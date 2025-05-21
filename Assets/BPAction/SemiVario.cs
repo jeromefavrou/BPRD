@@ -158,9 +158,8 @@ public class SemiVario : BPAction
         _graph.getLPoints().regressData.regressParametres.h = float.Parse(h.text);
 
 
-        graphDisplay.saveCurrent( 1 );
-        graphDisplay.courbeType.value = 1;
-        graphDisplay.selectChange();
+        graphDisplay.saveCurrent( GraphDisplay.IndexCurve.SemiVario); 
+
 
         progressBarre.setAction("semi-variogramme calculé");
         isProcessing = false;

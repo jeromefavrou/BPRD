@@ -1,3 +1,36 @@
+Version : v0.4.1-alpha
+date : 19/04/2025
+Author : Jérôme Favrou
+Git Source : https://github.com/jeromefavrou/BPRD
+
+    <<<<< Résolut >>>>>
+        nombre de Thread toujour bloqué a 7 desormait , l'input affecte bien le nombre de thread utilisé
+        correction de la fonction de densité
+        pas de manuel possible sur les ajustement de semi vario => desormait possible
+        noyaux gaussien sous estimé par moment sur le graph de semi-vario => corrigé 
+        
+    <<<<< Ajout  >>>>>
+        ajout de la fonction de repartion dans les graph
+
+    <<<<< Modification >>>>>
+        normalisation statistique de la fonction de densité
+        ajustement par noyaux gaussien sur fonction de densité ajusté a h/1.5 pour etre plus doux 
+        
+
+    <<<<< Non Critique non résolut >>>>>
+        Bug des des valeurs d'axes qui ne suivent pas un changement de resolution de fenetre 
+        Bug du retrait de trace
+        Possible forte impréssision du calcule point némo en echentillonage trop loin du metrique ( non adaptatif )
+        RMSEXY a 0 au lieu de N/A
+        O de graph en Y s'affiche meme si hors viewport quand barycentre de graph non null
+        valeur de graph affiche l'incertidude floatante a 10-7 pour certaitne valeur < 0
+
+    <<<<< Critique non résolut >>>>>
+
+
+
+
+
 Version : v0.4.0-alpha
 date : 19/04/2025
 Author : Jérôme Favrou

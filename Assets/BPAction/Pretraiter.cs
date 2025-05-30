@@ -32,6 +32,7 @@ public class Pretraiter : BPAction
     private const string logfileName = "log.txt";
     
     private List<BathyPoint> preTraitData = new List<BathyPoint>();
+    private List<BathyPoint> tmpBathyData = new List<BathyPoint>();
     private Interpolate _interpolate = new Interpolate();
 
     bool isProcessing2 = false;
@@ -710,6 +711,9 @@ public class Pretraiter : BPAction
             } 
         }
 
+        //on retire les donné de confirmation pour le calcule du point nemo
+        tmpBathyData = gen_data.subConfirmData(preTraitData);
+
         ThreadSegment thread = new ThreadSegment((uint)gen_data.pp_data.size.x);
 
         progressBarre.setAction("Caclule point Nemo [" + thread.get_nThreads() + " threads]");
@@ -731,10 +735,11 @@ public class Pretraiter : BPAction
         gen_data.pp_data.nemo_distance = Mathf.Sqrt(gen_data.pp_data.nemo_distance);
         
         progressBarre.stop();
+        
     
 
         // Affinage du point Nemo en générant des points autour de celui-ci
-int refinementIterations = 50; // Nombre d'itérations pour affiner le point
+        int refinementIterations = 50; // Nombre d'itérations pour affiner le point
 float searchRadius = 1.0f; // Rayon de recherche autour du point Nemo
 float bestDist = gen_data.pp_data.nemo_distance; // Meilleure distance trouvée
 
@@ -754,10 +759,10 @@ for (int iter = 0; iter < refinementIterations; iter++)
 
             // Calcul de la distance minimale pour ce nouveau point
             float dist_min = float.MaxValue;
-            for (int k = 0; k < preTraitData.Count; k++)
+            for (int k = 0; k < tmpBathyData.Count; k++)
             {
-                a = preTraitData[k].vect.x - newX;
-                b = preTraitData[k].vect.y - newY;
+                a = tmpBathyData[k].vect.x - newX;
+                b = tmpBathyData[k].vect.y - newY;
                 dist = (float)(a * a + b * b);
 
                 if (dist < dist_min)
@@ -783,7 +788,7 @@ for (int iter = 0; iter < refinementIterations; iter++)
     {
         // Calculer la distance minimale du point candidat p aux autres points
         float dist_min = float.MaxValue;
-        foreach (var point in preTraitData)
+        foreach (var point in tmpBathyData)
         {
             double a = point.vect.x - p.x;
             double b = point.vect.y - p.y;
@@ -805,8 +810,10 @@ for (int iter = 0; iter < refinementIterations; iter++)
     }
 }
 
-// Mise à jour de la distance finale
-gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
+        // Mise à jour de la distance finale
+        gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
+
+        tmpBathyData.Clear();
 
         //debug nemo point
         double xx = nemoPoint.x-gen_data.pp_data.min.x;
@@ -857,10 +864,10 @@ gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
 
                 //calcule la distance entre le point et tout les autre point
                 float dist_min = float.MaxValue;
-                for(int k = 0; k < preTraitData.Count; k++)
+                for(int k = 0; k < tmpBathyData.Count; k++)
                 {
-                    double a = preTraitData[k].vect.x - x;
-                    double b = preTraitData[k].vect.y - y;
+                    double a = tmpBathyData[k].vect.x - x;
+                    double b = tmpBathyData[k].vect.y - y;
 
                     float dist = (float)(a * a + b * b);
 
@@ -974,10 +981,6 @@ gen_data.pp_data.nemo_distance = Mathf.Sqrt(bestDist);
     double maxZ = Mathd.Abs(gen_data.pp_data.min.z) * 1.1;
     double h = 200 * (maxZ - minZ) / (double)preTraitData.Count;
 
-    //debug 
-    Debug.Log("h : " + h);
-    Debug.Log("minZ : " + minZ);
-    Debug.Log("maxZ : " + maxZ);
 
     // Parcourt toutes les fenêtres
     for (double i = minZ + h; i < maxZ; i += h)

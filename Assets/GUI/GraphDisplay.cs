@@ -45,7 +45,7 @@ public class GraphDisplay : MonoBehaviour
     void Awake()
     {
         button = GetComponent<Button>();
-        button.onClick.AddListener(OnClick);
+    
         courbeType.onValueChanged.AddListener(delegate {selectChange(); });
 
         npoint.text = "0";
@@ -67,12 +67,7 @@ public class GraphDisplay : MonoBehaviour
         
     }
 
-    void OnClick()
-    {
-        stat =!stat;
-        _graph.gameObject.SetActive(stat);
 
-    }
 
     public void selectChange()
     {

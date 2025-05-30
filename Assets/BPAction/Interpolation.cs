@@ -14,6 +14,10 @@ public class Interpolation : BPAction
     private Interpolate interpolate = new Interpolate();
     public ImageSelector imageSelector;
     public Map _map;
+
+    public Water _water;
+
+    public Rive _rive;
     public Graph _graph;
     public GraphDisplay graphDisplay;
 
@@ -122,20 +126,15 @@ public class Interpolation : BPAction
 
         if (graphDisplay.getLPoints(GraphDisplay.IndexCurve.SemiVario) != null)
         {
-            //debug    
-            Debug.Log("graphDisplay.getLPoints(1)!= null");
             if (graphDisplay.getLPoints(GraphDisplay.IndexCurve.SemiVario).regressData != null)
             {
-
-                //debug
-                Debug.Log("graphDisplay.getLPoints(1).regressData != null");
                 estimateurTmp = graphDisplay.getLPoints(GraphDisplay.IndexCurve.SemiVario).regressData.estimateur;
             }
         }
 
         if (type == 4 && estimateurTmp == null)
         {
-            errManager.addError("Pas d'estimateur caculer pour le krigeage ordinaire ");
+            errManager.addError("Pas d'estimateur caculer pour le krigeage ordinaire => generer semi-variogramme et aller dans graph pour etablir un estimateur");
             isProcessing = false;
             yield break;
         }
@@ -259,6 +258,36 @@ public class Interpolation : BPAction
 
 
         StartCoroutine(_map.generateMesh(gen_data));
+
+        while (progressBarre.ProcessingCheck())
+        {
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        //si water actif
+        bool saveActiveState =_water.gameObject.activeSelf;
+
+
+        _water.gameObject.SetActive(true);
+        StartCoroutine(_water.generateMesh(gen_data));
+        while (progressBarre.ProcessingCheck())
+        {
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        _water.gameObject.SetActive(saveActiveState);
+
+         saveActiveState =_water.gameObject.activeSelf;
+
+        saveActiveState =_rive.gameObject.activeSelf;
+        _rive.gameObject.SetActive(true);
+        StartCoroutine(_rive.generateMesh(gen_data));
+        while (progressBarre.ProcessingCheck())
+        {
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        _rive.gameObject.SetActive(saveActiveState);
 
         isProcessing = false;
     }

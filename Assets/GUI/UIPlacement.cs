@@ -15,22 +15,10 @@ public class UIPlacement : MonoBehaviour
     public GameObject reductFull;
     public GameObject changeLog;
 
-    public GameObject nThread;
-
-    public GameObject graph;
-
-
 
     public GameObject panel;
 
-    private bool viewStatus = true;
 
-    void Awake()
-    {
-        Button tmp = sceneType.GetComponent<Button>();
-
-        tmp.onClick.AddListener(changeView);
-    }
 
 void Start()
 {
@@ -77,27 +65,13 @@ rt = cameraType.GetComponent<RectTransform>();
         rt.anchorMax = new Vector2(1, 1); // Ancrage en haut droite
         rt.pivot = new Vector2(0.5f, 1);  // Le haut du GameObject est l'ancre
 
-    rt = graph.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0, 1); 
-        rt.anchorMax = new Vector2(0, 1); 
-        rt.pivot = new Vector2(0.5f, 1);  
 
 
-        rt = nThread.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(1, 1); // Ancrage en haut droite
-        rt.anchorMax = new Vector2(1, 1); // Ancrage en haut droite
-        rt.pivot = new Vector2(0.5f, 1);  // Le haut du GameObject est l'ancre
 
     
 }
 
 
-
-    void changeView()
-    {
-        viewStatus = !viewStatus;
-        panel.SetActive(viewStatus);
-    }
 
 
     void OnGUI()
@@ -133,9 +107,6 @@ rt = cameraType.GetComponent<RectTransform>();
         index+= (int)rt.sizeDelta.x + offset.x;
         rt.anchoredPosition = new Vector2(index, -offset.y);
 
-        rt = graph.GetComponent<RectTransform>();
-        index+= (int)rt.sizeDelta.x + offset.x;
-        rt.anchoredPosition = new Vector2(index, -offset.y);
         
 
 
@@ -150,9 +121,6 @@ rt = cameraType.GetComponent<RectTransform>();
         index += (int)rt.sizeDelta.x + offset.x;
         rt.anchoredPosition = new Vector2(-index, -offset.y);
 
-        rt = nThread.GetComponent<RectTransform>();
-        index += (int)rt.sizeDelta.x + offset.x;
-        rt.anchoredPosition = new Vector2(-index, -offset.y);
 
     }
 }

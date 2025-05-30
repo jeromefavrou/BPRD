@@ -73,6 +73,15 @@ public class Reduction : BPAction
                 yield return new WaitForSeconds(0.1f);
             }
         }
+        if(type == 1)
+        {
+            StartCoroutine(lessResolutionRegular());
+
+            while(isProcessing2)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
 
         //trier les point par ordre d'index
         dataAdv.Sort((x, y) => x.idx.CompareTo(y.idx));
@@ -197,7 +206,38 @@ public class Reduction : BPAction
         yield return null;
     }
 
+    IEnumerator lessResolutionRegular()
+    {
+        List<BathyPoint> tmpData = new List<BathyPoint>(_derivate.getDerivateData());
+        //creee un copy de tmpData
 
+        if (tmpData == null)
+        {
+            Debug.LogError("Pas de donnée");
+            yield break;
+        }
+        if (tmpData.Count == 0)
+        {
+            Debug.LogError("Pas de donnée");
+            yield break;
+        }
+
+        if (isProcessing2)
+        {
+            yield break;
+        }
+
+        isProcessing2 = true;
+
+        dataAdv.Clear();
+        dataAdv = new List<BathyPoint>();
+        
+        dataAdv = subRegularInterval(int.Parse(target.text));
+
+        isProcessing2 = false;
+
+         yield return null;
+    }
 
     IEnumerator lessResolutionNew()
     {
@@ -228,63 +268,65 @@ public class Reduction : BPAction
 
 
         double resoLess =  (gen_data.pp_data.min_distance-0.01f) / 0.5f;
-
+        
 
         int limite = int.Parse(target.text);
 
-        dataAdv = subLessReso(resoLess , tmpData.Count);
+        
+            dataAdv = subLessReso(resoLess , tmpData.Count);
 
 
-        progressBarre.setAction("Reduction en cours .... approche de la sous resolution optimal");
-        progressBarre.start( 10 , 0.1f );
+            progressBarre.setAction("Reduction en cours .... approche de la sous resolution optimal");
+            progressBarre.start( 10 , 0.1f );
 
-        float approache = 0;
-        uint y =0;
-        for(float i = 1 ;  i >0 ; i-=  0.1f)
-        {
-            resoLess =  (gen_data.pp_data.min_distance-0.01f) / i;
-            dataAdv = subLessReso(resoLess ,  tmpData.Count);
-
-            if( dataAdv.Count < limite )
+            float approache = 0;
+            uint y =0;
+            for(float i = 1 ;  i >0 ; i-=  0.1f)
             {
-                approache = i;
-                break;
+                resoLess =  (gen_data.pp_data.min_distance-0.01f) / i;
+                dataAdv = subLessReso(resoLess ,  tmpData.Count);
+
+                if( dataAdv.Count < limite )
+                {
+                    approache = i;
+                    break;
+                }
+
+                if( progressBarre.validUpdate(y))
+                {
+                    yield return new WaitForSeconds(0.01f);
+                }
+                y++;
+
             }
 
-            if( progressBarre.validUpdate(y))
-            {
-                yield return new WaitForSeconds(0.01f);
-            }
-            y++;
-
-        }
-
-        y = 0;
-        progressBarre.stop();
-        progressBarre.setAction("Reduction en cours .... estimation de la sous resolution optimal");
-        progressBarre.start( 100 );
-        for(float i = approache ; i < 1  ; i+=  0.001f)
-        {
             
-            resoLess =  (gen_data.pp_data.min_distance-0.01f) / i;
-            dataAdv = subLessReso(resoLess ,  tmpData.Count);
-
-            if( dataAdv.Count > limite )
+            progressBarre.stop();
+            y = 0;
+            progressBarre.setAction("Reduction en cours .... estimation de la sous resolution optimal");
+            progressBarre.start( 100 );
+            for(float i = approache ; i < 1  ; i+=  0.001f)
             {
-                break;
+                
+                resoLess =  (gen_data.pp_data.min_distance-0.01f) / i;
+                dataAdv = subLessReso(resoLess ,  tmpData.Count);
+
+                if( dataAdv.Count > limite )
+                {
+                    break;
+                }
+
+
+                if( progressBarre.validUpdate(y))
+                {
+                    yield return new WaitForSeconds(0.01f);
+                }
+
+                y++;
             }
 
-
-            if( progressBarre.validUpdate(y))
-            {
-                yield return new WaitForSeconds(0.01f);
-            }
-
-            y++;
-        }
-
-        dataAdv = subLessReso(resoLess , limite);
-
+            dataAdv = subLessReso(resoLess , limite);
+        
 
 
         progressBarre.stop();
@@ -296,7 +338,37 @@ public class Reduction : BPAction
 
     }
 
-    private List<BathyPoint> subLessReso( double resoLess , int limite)
+    private List<BathyPoint> subRegularInterval(int limite)
+    {
+        List<BathyPoint> result = new List<BathyPoint>();
+        List<BathyPoint> tmpData = new List<BathyPoint>(_derivate.getDerivateData());
+
+        // Trie par ordre d'index
+        tmpData.Sort((x, y) => x.idx.CompareTo(y.idx));
+
+        int total = tmpData.Count;
+        float step = (float)total / (float)limite;
+
+        // Debug
+        Debug.Log("Total: " + total + " | Limite: " + limite + " | Step: " + step);
+
+        if (step < 1)
+        {
+            errManager.addError("Le nombre de points est trop faible pour la réduction");
+            return result;
+        }
+
+        for (int i = 0; i < limite; i++)
+        {
+            int index = (int)Mathf.Round(i * step);
+            if (index >= total)
+                index = total - 1; // éviter les débordements
+            result.Add(tmpData[index]);
+        }
+
+        return result;
+    }
+    private List<BathyPoint> subLessReso(double resoLess, int limite)
     {
         List<BathyPoint> result = new List<BathyPoint>();
 
@@ -304,26 +376,26 @@ public class Reduction : BPAction
 
 
         //sans les point de contour
-        if( shielContour.isOn && gen_data.pp_data.convexeDataSegment.set)
+        if (shielContour.isOn && gen_data.pp_data.convexeDataSegment.set)
         {
-           for( int i = 0 ; i < tmpData.Count ; i++)
+            for (int i = 0; i < tmpData.Count; i++)
             {
-                if( tmpData[i].idx >= gen_data.pp_data.convexeDataSegment.start && tmpData[i].idx <= gen_data.pp_data.convexeDataSegment.end)
+                if (tmpData[i].idx >= gen_data.pp_data.convexeDataSegment.start && tmpData[i].idx <= gen_data.pp_data.convexeDataSegment.end)
                 {
                     result.Add(tmpData[i]);
                     tmpData.RemoveAt(i);
                     i--;
                 }
             }
-            
+
         }
 
         //sans les point de confirlation
-        if( shielConfirm.isOn && gen_data.pp_data.confirmDataSegment.set)
+        if (shielConfirm.isOn && gen_data.pp_data.confirmDataSegment.set)
         {
-            for( int i = 0 ; i < tmpData.Count ; i++)
+            for (int i = 0; i < tmpData.Count; i++)
             {
-                if( tmpData[i].idx >= gen_data.pp_data.confirmDataSegment.start && tmpData[i].idx <= gen_data.pp_data.confirmDataSegment.end)
+                if (tmpData[i].idx >= gen_data.pp_data.confirmDataSegment.start && tmpData[i].idx <= gen_data.pp_data.confirmDataSegment.end)
                 {
                     result.Add(tmpData[i]);
                     tmpData.RemoveAt(i);
@@ -333,9 +405,9 @@ public class Reduction : BPAction
         }
 
 
-        if( shielGrad.isOn)
+        if (shielGrad.isOn)
         {
-             //trie par odre de gradian
+            //trie par odre de gradian
             tmpData.Sort((x, y) => x.gradiant.CompareTo(y.gradiant));
 
             //inverse
@@ -344,41 +416,41 @@ public class Reduction : BPAction
             double pourcent = double.Parse(gradPourcent.text);
 
             //assure d'etre compris entre 0 et 100
-            if( pourcent < 0)
+            if (pourcent < 0)
             {
                 pourcent = 0;
                 gradPourcent.text = "0";
             }
-            if( pourcent > 50)
+            if (pourcent > 50)
             {
                 pourcent = 50;
                 gradPourcent.text = "50";
             }
 
             //protege les 5% de point les plus fort
-            int protect = (int)(tmpData.Count * double.Parse(gradPourcent.text)/100.0 );
+            int protect = (int)(tmpData.Count * double.Parse(gradPourcent.text) / 100.0);
 
-            for( int i = 0 ; i < protect ; i++)
+            for (int i = 0; i < protect; i++)
             {
                 result.Add(tmpData[i]);
             }
 
             tmpData.RemoveRange(0, protect);
         }
-       
+
 
         //trie aleatoirement
-        
+
         tmpData.Sort((x, y) => Random.Range(-1, 2));
 
 
-        while(tmpData.Count > 0)
+        while (tmpData.Count > 0)
         {
 
             //arrondir au plus proche
 
             Vector2d relPos = gen_data.rel_vect2(tmpData[0].vect);
-            Vector2Int point2gird = new Vector2Int( (int) Mathd.Floor(relPos.x * gen_data.pp_data.min_resolution) , (int) Mathd.Floor(relPos.y * gen_data.pp_data.min_resolution) );
+            Vector2Int point2gird = new Vector2Int((int)Mathd.Floor(relPos.x * gen_data.pp_data.min_resolution), (int)Mathd.Floor(relPos.y * gen_data.pp_data.min_resolution));
 
 
 
@@ -387,14 +459,14 @@ public class Reduction : BPAction
             colliderPoints.Add(tmpData[0]);
             tmpData.RemoveAt(0);
 
-            for( int i = 0 ; i < tmpData.Count ; i++)
+            for (int i = 0; i < tmpData.Count; i++)
             {
                 Vector2d relPos2 = gen_data.rel_vect2(tmpData[i].vect);
-                Vector2d point2gird2 = new Vector2d( (int) Mathd.Floor(relPos2.x * gen_data.pp_data.min_resolution) , (int) Mathd.Floor(relPos2.y * gen_data.pp_data.min_resolution) );
+                Vector2d point2gird2 = new Vector2d((int)Mathd.Floor(relPos2.x * gen_data.pp_data.min_resolution), (int)Mathd.Floor(relPos2.y * gen_data.pp_data.min_resolution));
 
-                
 
-                if( relPos2.x >= (float)(relPos.x-resoLess)   && relPos2.x < (float)(relPos.x+resoLess)  && relPos2.y >= (float)(relPos.y-resoLess)  && relPos2.y < (float)(relPos.y+resoLess))
+
+                if (relPos2.x >= (float)(relPos.x - resoLess) && relPos2.x < (float)(relPos.x + resoLess) && relPos2.y >= (float)(relPos.y - resoLess) && relPos2.y < (float)(relPos.y + resoLess))
                 {
                     colliderPoints.Add(tmpData[i]);
                     tmpData.RemoveAt(i);
@@ -402,17 +474,17 @@ public class Reduction : BPAction
                 }
             }
 
-            if( colliderPoints.Count == 1  )
+            if (colliderPoints.Count == 1)
             {
                 result.Add(colliderPoints[0]);
             }
-            else if( colliderPoints.Count > 1)
+            else if (colliderPoints.Count > 1)
             {
                 BathyPoint tmp = new BathyPoint();
                 tmp.idx = colliderPoints[0].idx;
 
                 int i = 0;
-                foreach( BathyPoint col in colliderPoints)
+                foreach (BathyPoint col in colliderPoints)
                 {
                     tmp.vect += col.vect;
                     tmp.gradiant += col.gradiant;
@@ -427,7 +499,7 @@ public class Reduction : BPAction
                 result.Add(tmp);
             }
 
-            if(result.Count >= limite)
+            if (result.Count >= limite)
             {
                 //a pour effet de suprimer le spoint restant de maniere     aleatoir
                 break;
@@ -510,8 +582,6 @@ public class Reduction : BPAction
             }
         }
 
-
-        //calcule du point nemo , point virtuel le plus eloigné de tout point
         
 
 
@@ -529,9 +599,4 @@ public class Reduction : BPAction
     }
 
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

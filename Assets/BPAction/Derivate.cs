@@ -182,54 +182,64 @@ public class Derivate : BPAction
             }
         }
 
+        BathyGraphie2D.HSVScale hsvScale = new BathyGraphie2D.HSVScale();
+
+        hsvScale.H.a = 0.5f;
+        hsvScale.H.b = 0.25f;
+        
+        hsvScale.S.a = 0;
+        hsvScale.S.b = 0.6f;
+
+        hsvScale.V.a = 0;
+        hsvScale.V.b = 1;
 
         //parcour de chaque point et attribut la couleur
-        for (int i = 1; i < gen_data.it_data.size.x-1; i++)
+        for (int i = 1; i < gen_data.it_data.size.x - 1; i++)
         {
-            for (int j = (int)gen_data.limite.getLimiteYMin((uint)i); j < (int)gen_data.limite.getLimiteYMax((uint)i)-1; j++)
+            for (int j = (int)gen_data.limite.getLimiteYMin((uint)i); j < (int)gen_data.limite.getLimiteYMax((uint)i) - 1; j++)
             {
 
-                z11 = gen_data.it_data.data[i,j];
+                z11 = gen_data.it_data.data[i, j];
 
 
-                z00 =  i== 0 || j == 0 ? 0 : gen_data.it_data.data[i-1,j-1];
+                z00 = i == 0 || j == 0 ? 0 : gen_data.it_data.data[i - 1, j - 1];
 
 
-                z01 = j==0 ?0:gen_data.it_data.data[i,j-1];
+                z01 = j == 0 ? 0 : gen_data.it_data.data[i, j - 1];
 
 
-                z02 = j==0 || i >= gen_data.it_data.size.x - 1 ?0:gen_data.it_data.data[i+1,j-1];
+                z02 = j == 0 || i >= gen_data.it_data.size.x - 1 ? 0 : gen_data.it_data.data[i + 1, j - 1];
 
 
-                z10 = i==0 ?0:gen_data.it_data.data[i-1,j];
+                z10 = i == 0 ? 0 : gen_data.it_data.data[i - 1, j];
 
 
-                z12 = i >= gen_data.it_data.size.x - 1 ?0:gen_data.it_data.data[i+1,j];
+                z12 = i >= gen_data.it_data.size.x - 1 ? 0 : gen_data.it_data.data[i + 1, j];
 
 
-                z20 = j >= gen_data.it_data.size.y - 1 || i==0?0:gen_data.it_data.data[i-1,j+1];
+                z20 = j >= gen_data.it_data.size.y - 1 || i == 0 ? 0 : gen_data.it_data.data[i - 1, j + 1];
 
 
-                z21 = j >= gen_data.it_data.size.y - 1 ?0:gen_data.it_data.data[i,j+1];
+                z21 = j >= gen_data.it_data.size.y - 1 ? 0 : gen_data.it_data.data[i, j + 1];
 
 
-                z22 = i >= gen_data.it_data.size.x - 1 || j >= gen_data.it_data.size.y - 1 ?0:gen_data.it_data.data[i+1,j+1];
+                z22 = i >= gen_data.it_data.size.x - 1 || j >= gen_data.it_data.size.y - 1 ? 0 : gen_data.it_data.data[i + 1, j + 1];
                 //calcul de la derivee
                 if (methode.value == 0)
                 {
-                    gen_data.map2dGrad.SetPixel(i, j, BathyGraphie2D.bathyColor( diferenceFini( z10 -  z12  ,  z01 -z21 ) , 0, gradMax));
+                    gen_data.map2dGrad.SetPixel(i, j, BathyGraphie2D.bathyColor(hsvScale, diferenceFini(z10 - z12, z01 - z21), 0, gradMax));
                 }
 
                 else if (methode.value == 1)
                 {
-                    gen_data.map2dGrad.SetPixel(i, j, BathyGraphie2D.bathyColor(  sobel( z00 , z01 , z02 , z10 , z12 , z20 , z21 , z22)  , 0, gradMax));
+                    gen_data.map2dGrad.SetPixel(i, j, BathyGraphie2D.bathyColor(hsvScale, sobel(z00, z01, z02, z10, z12, z20, z21, z22), 0, gradMax));
                 }
-                else if(methode.value == 2)
+                else if (methode.value == 2)
                 {
-                    gen_data.map2dGrad.SetPixel(i, j, BathyGraphie2D.bathyColor(  prewitt( z00 , z01 , z02 , z10 , z12 , z20 , z21 , z22)  , 0, gradMax));
+                    gen_data.map2dGrad.SetPixel(i, j, BathyGraphie2D.bathyColor(hsvScale, prewitt(z00, z01, z02, z10, z12, z20, z21, z22), 0, gradMax));
                 }
 
-                 gen_data.map2dLaplace.SetPixel(i, j, BathyGraphie2D.bathyColor(  laplace( z11 , z01 , z10 , z12 , z21 )  , 0, laplaceMax));
+                gen_data.map2dLaplace.SetPixel(i, j, BathyGraphie2D.bathyColor(hsvScale, laplace(z11, z01, z10, z12, z21), 0, laplaceMax));
 
             }
         }

@@ -1,3 +1,37 @@
+Version : v0.9.0-alpha
+date : 01/06/2025
+Author : Jérôme Favrou
+Git Source : https://github.com/jeromefavrou/BPRD
+
+    <<<<< Résolut >>>>>
+        les mesh non plus d'artefact sur les limite en X
+        point nemo erroné quand donné de confirmation etablie = resolut
+        Bug des des valeurs d'axes qui ne suivent pas un changement de resolution de fenetre =resolut
+        valeur de graph affiche l'incertidude floatante a 10-7 pour certaitne valeur < 0 => resolut
+        O de graph en Y s'affiche meme si hors viewport quand barycentre de graph non null = desormait barycentre toujour null
+
+    <<<<< Ajout  >>>>>
+        ajout d'un mesh  d'eau affichable
+        ajout d'un mesh de bateau affichable ( reference 5m de long )
+        ajout d'une fenetre parametre
+        ajout d'option de colorimetrie des resultats interpoler
+        ajout d'option de colorimetrie de fond
+        ajout du type de reduction par interval regulier ( tres efficace pour des donné echentilloné regulierement)
+        ajout d'un mesh de rive
+
+    <<<<< Modification >>>>>
+        regroupement des fenetre dans un dropdown
+        deplacement du parametre Nthread dans la fenetre de parametre
+
+    <<<<< Non Critique non résolut >>>>>
+        
+        Bug du retrait de trace
+        Possible forte impréssision du calcule point némo en echentillonage trop loin du metrique ( non adaptatif )
+        RMSEXY a 0 au lieu de N/A
+
+    <<<<< Critique non résolut >>>>>
+        reduction sur une interpolation type krigage plante
+
 Version : v0.4.1-alpha
 date : 19/04/2025
 Author : Jérôme Favrou
@@ -26,9 +60,6 @@ Git Source : https://github.com/jeromefavrou/BPRD
         valeur de graph affiche l'incertidude floatante a 10-7 pour certaitne valeur < 0
 
     <<<<< Critique non résolut >>>>>
-
-
-
 
 
 Version : v0.4.0-alpha

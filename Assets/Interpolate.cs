@@ -413,7 +413,7 @@ public double[] SolveLinearSystem(double[,] A, double[] b)
         {
             for (int y = (int)gen_data.limite.getLimiteYMin((uint)(x)); y < (int)gen_data.limite.getLimiteYMax((uint)(x)) ; y++)
             {  
-                Color tmpColor =BathyGraphie2D.bathyColor(gen_data.it_data.data[x, y], gen_data.pp_data.min.z, gen_data.pp_data.max.z);
+                Color tmpColor =BathyGraphie2D.bathyColor(gen_data.it_data.HSV_scale, gen_data.it_data.data[x, y], gen_data.pp_data.min.z, gen_data.pp_data.max.z);
                 tmpColor.a = 1;
                 gen_data.workingTexture.SetPixel(x, y,tmpColor);
             }

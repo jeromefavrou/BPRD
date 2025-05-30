@@ -54,6 +54,10 @@ public IEnumerator generateMesh(  GeneralStatUtils _gen )
             {
                 float h = (float)_gen.it_data.data[x, y];
 
+                if (y == (int)_gen.limite.getLimiteYMin((uint)(x)) - 1)
+                    h = 0;
+
+                    
                 float xReso = (float)x / (float)_gen.it_data.reso;
                 float yReso = (float)y / (float)_gen.it_data.reso;
 
@@ -65,18 +69,19 @@ public IEnumerator generateMesh(  GeneralStatUtils _gen )
                 meshData.uvs[vertexIndex] = new Vector2(x / (float)(width ) + (0.5f/(float)(width )), y / (float)(height )+ (0.5f/(float)(width )));
 
                 // Ajout des triangles
-                if (x < width  && y < (int)_gen.limite.getLimiteYMax( (uint)(x) )-2 && y >=(int)_gen.limite.getLimiteYMin( (uint)(x) )+1)
+                if ( x < width-1 && y < height && y <= (int)_gen.limite.getLimiteYMax( (uint)(x) ) && y >=(int)_gen.limite.getLimiteYMin( (uint)(x) )-1)
                 {
                     int a = vertexIndex;
                     int b = vertexIndex + 1;
                     int c = vertexIndex + width;
                     int d = vertexIndex + width + 1;
-
-                    if (d < meshData.vertices.Length )
-                    {
-                        meshData.addTriangle(a, c, b); // Triangle 1 // acb
-                        meshData.addTriangle(b, c, d); // Triangle 2 // bcd
-                    }
+                    
+                        if (d < meshData.vertices.Length)
+                        {
+                            meshData.addTriangle(a, c, b); // Triangle 1 // acb
+                            meshData.addTriangle(b, c, d); // Triangle 2 // bcd
+                        }
+                    
                 }
 
                 vertexIndex++;

@@ -27,6 +27,8 @@ public class Graph : MonoBehaviour
 
     private const int sizeX = 4000;
     private int sizeY = 4000;
+
+    private Vector2 refScreenSize = new Vector2(1366, 768);
     // Start is called before the first frame update
     void Awake()
     {
@@ -210,10 +212,16 @@ public class Graph : MonoBehaviour
 
     void addXvalue(float xValue)
     {
-        if(_points.getListPoint().Count == 0)
+        //arondir a 2 chiffre apres la virgule
+        xValue = Mathf.Round(xValue * 100f) / 100f;
+
+
+        if (_points.getListPoint().Count == 0)
         {
             return;
         }
+
+
         xValues.Add( new GameObject(xValue.ToString()));
         var tmptxt  = xValues[xValues.Count - 1].AddComponent<TextMeshProUGUI>();
         xValues[xValues.Count - 1].transform.SetParent(graphImage.transform);
@@ -223,13 +231,15 @@ public class Graph : MonoBehaviour
         tmptxt.color = Color.black;
         tmptxt.alignment = TextAlignmentOptions.Center;
 
+        Vector2 currentWindowSize = new Vector2(Screen.width, Screen.height);
+        Vector2 currentRatio = new Vector2(currentWindowSize.x / refScreenSize.x, currentWindowSize.y / refScreenSize.y);
 
         var posImage =   graphImage.transform.position ;
         var taille = graphImage.rectTransform.rect.size / 2;
 
-        Vector2 refPos = new Vector2(posImage.x - taille.x , posImage.y - taille.y)   ;
+        Vector2 refPos = new Vector2(posImage.x - taille.x * currentRatio.x  , posImage.y - taille.y * currentRatio.y)   ;
 
-        double xOnGui = (xValue-_barycentre.x) / ratio.x;
+        double xOnGui = currentRatio.x * (xValue-_barycentre.x) / ratio.x;
         xOnGui *= (graphImage.rectTransform.rect.width)/sizeX;
 
         xValues[xValues.Count - 1].transform.position = new Vector3(refPos.x + (float)xOnGui, refPos.y - 15, 0);
@@ -237,7 +247,10 @@ public class Graph : MonoBehaviour
 
     void addYvalue(float yValue)
     {
-        if(_points.getListPoint().Count == 0)
+        //arondir a 2 chiffre apres la virgule
+        yValue = Mathf.Round(yValue * 100f) / 100f;
+        
+        if (_points.getListPoint().Count == 0)
         {
             return;
         }
@@ -251,14 +264,15 @@ public class Graph : MonoBehaviour
         tmptxt.color = Color.black;
         tmptxt.alignment = TextAlignmentOptions.Center;
 
-
+        Vector2 currentWindowSize = new Vector2(Screen.width, Screen.height);
+        Vector2 currentRatio = new Vector2(currentWindowSize.x / refScreenSize.x, currentWindowSize.y / refScreenSize.y);
         var posImage =   graphImage.transform.position ;
         var taille = graphImage.rectTransform.rect.size / 2;
 
-        Vector2 refPos = new Vector2(posImage.x - taille.x , posImage.y - taille.y)   ;
+        Vector2 refPos = new Vector2(posImage.x - taille.x * currentRatio.x , posImage.y - taille.y * currentRatio.y)   ;
 
         double yonGui = (yValue) / ratio.y;
-        yonGui *= screenRatio;
+        yonGui *= screenRatio * currentRatio.y;
         yonGui *= (graphImage.rectTransform.rect.height )/sizeY;
         yonGui += (_barycentre.y)*(graphImage.rectTransform.rect.height )/sizeY ;
 

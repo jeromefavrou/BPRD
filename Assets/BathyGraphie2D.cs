@@ -25,6 +25,33 @@ public class BathyGraphie2D : MonoBehaviour
 
     public TMP_Dropdown interpolationMethod;
 
+    public struct ColorScale
+    {
+        public float a;
+        public float b;
+
+        public ColorScale(float _a = 1, float _b = 0)
+        {
+            a = _a;
+            b = _b;
+        }
+    }
+
+    public struct HSVScale
+    {
+        public ColorScale H;
+        public ColorScale S;
+        public ColorScale V;
+
+        public HSVScale(ColorScale _H = new ColorScale(), ColorScale _S = new ColorScale(), ColorScale _V = new ColorScale())
+        {
+            H = _H;
+            S = _S;
+            V = _V;
+        }
+    }
+
+
 
     void Awake()
     {
@@ -97,18 +124,46 @@ public class BathyGraphie2D : MonoBehaviour
 
     public void hideTrace(List<Vector3d> _data , Vector3d _min , Vector3d _max )
     {
-        for( int i = 0 ; i < _data.Count ; i++)
+        /*for( int i = 0 ; i < _data.Count ; i++)
         {
             map2d.SetPixel((int)((_data[i].x - _min.x)*imgResolustion), (int)((_data[i].y - _min.y)*imgResolustion), bathyColor(_data[i].z , _min.z , _max.z)); 
         }
 
-        applyTextToImage();
+        applyTextToImage();*/
     }
 
 
-    public static Color bathyColor(double _value , double _min , double _max)
+    public static Color bathyColor( HSVScale hsvScale , double _value , double _min , double _max)
     {
-        return Color.HSVToRGB( 0.75f*(Mathf.InverseLerp((float)_max, (float)_min,  (float)_value)+0.25f)-0.25f  , 0.6f, 1);
+        
+        float normalizedValue = Mathf.InverseLerp((float)_max, (float)_min, (float)_value);
+
+        float H, S, V;
+
+        H = hsvScale.H.a * normalizedValue + hsvScale.H.b;
+
+        S = hsvScale.S.a * normalizedValue + hsvScale.S.b;
+
+        V =   hsvScale.V.a * normalizedValue + hsvScale.V.b;
+        
+
+
+        //assure des valeurs correctes
+        if (H < 0)
+            H = 0;
+        else if (H > 1)
+            H = 1;
+        if( S < 0 )
+            S = 0;
+        else if( S > 1 )
+            S = 1;
+        if( V < 0 )
+            V = 0;
+        else if( V > 1 )
+            V = 1;
+
+
+        return Color.HSVToRGB(H, S, V);
     }
 
     private void selectTexture()

@@ -8,7 +8,6 @@ public class GeneralStatUtils : MonoBehaviour
 {
     
 
-    
 
     public class PP_data
     {   public Vector3d min ;
@@ -21,6 +20,8 @@ public class GeneralStatUtils : MonoBehaviour
         public float density ;
         
         public Vector3d size ;
+        
+
 
         public class DataSegment
         {
@@ -42,7 +43,7 @@ public class GeneralStatUtils : MonoBehaviour
 
             public bool isInside(uint idx)
             {
-                if( rendomiz)
+                if (rendomiz)
                 {
                     return list.Contains(idx);
                 }
@@ -54,7 +55,7 @@ public class GeneralStatUtils : MonoBehaviour
 
             public bool isValide()
             {
-                if( rendomiz)
+                if (rendomiz)
                 {
                     return list.Count > 0;
                 }
@@ -96,6 +97,11 @@ public class GeneralStatUtils : MonoBehaviour
 
     public class IT_data
     {
+            public BathyGraphie2D.HSVScale HSV_scale = new BathyGraphie2D.HSVScale(
+            new BathyGraphie2D.ColorScale(0.5f, 0.25f),
+            new BathyGraphie2D.ColorScale(0, 0.6f),
+            new BathyGraphie2D.ColorScale(0, 1.0f)
+        );
         public Vector2Int size;
         public double[,] data;
         public float reso;
@@ -236,6 +242,26 @@ public class GeneralStatUtils : MonoBehaviour
             }
         }
 
+        return tmpData;
+    }
+
+    public List<BathyPoint> subConvexeData(List<BathyPoint> data)
+    {
+        List<BathyPoint> tmpData = new List<BathyPoint>(data);
+        //sans les point de contour
+        if (this.pp_data.convexeDataSegment.set)
+        {
+            for (int i = 0; i < tmpData.Count; i++)
+            {
+                if (tmpData[i].idx >= this.pp_data.convexeDataSegment.start && tmpData[i].idx <= this.pp_data.convexeDataSegment.end)
+                {
+                    tmpData.RemoveAt(i);
+                    i--;
+                }
+            }
+
+        }
+        
         return tmpData;
     }
 
